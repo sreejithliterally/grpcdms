@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package dms;
+
+service DmsService {
+    rpc GetUser(UserRequest) returns (UserResponse);
+    rpc GetFolders(FolderRequest) returns (FolderResponse);
+    rpc GetFiles(FileRequest) returns (FileResponse);
+    rpc CreateFile(CreateFileRequest) returns (CreateFileResponse);
+    rpc CreateFolder(CreateFolderRequest) returns (CreateFolderResponse);
+    rpc MoveFile(MoveFileRequest) returns (MoveFileResponse);
+    rpc SayHello (HelloRequest) returns (HelloResponse);
+    
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+    rpc Login(LoginRequest) returns (LoginResponse);
+}
+
+message UserRequest {
+    int32 user_id = 1;
+}
+
+message UserResponse {
+    int32 user_id = 1;
+    string username = 2;
+}
+
+message FolderRequest {
+    int32 user_id = 1;
+}
+
+message FolderResponse {
+    repeated Folder folders = 1;
+}
+
+message FileRequest {
+    int32 folder_id = 1;
+}
+
+message FileResponse {
+    repeated File files = 1;
+}
+
+message CreateFileRequest {
+    int32 folder_id = 1;
+    File file = 2;
+}
+
+message CreateFileResponse {
+    string message = 1;
+}
+
+message CreateFolderRequest {
+    int32 user_id = 1;
+    Folder folder = 2;
+}
+
+message CreateFolderResponse {
+    string message = 1;
+}
+
+message MoveFileRequest {
+    int32 file_id = 1;
+    int32 folder_id = 2;
+}
+
+message MoveFileResponse {
+    string message = 1;
+}
+
+message Folder {
+    int32 folder_id = 1;
+    string name = 2;
+}
+
+message File {
+    int32 file_id = 1;
+    string name = 2;
+}
+
+// New messages for user management
+message CreateUserRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message CreateUserResponse {
+    string message = 1;
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+}
+
+message HelloRequest {}
+
+message HelloResponse {
+  string message = 1;
+}

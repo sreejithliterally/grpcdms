@@ -1,0 +1,4 @@
+grpcio-tools ~= 1.30
+SQLAlchemy==1.4.25
+psycopg2
+psycopg2-binary
