@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tdms.proto\x12\x03\x64ms\"\x1e\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"1\n\x0cUserResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x10\n\x08username\x18\x02 \x01(\t\" \n\rFolderRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\".\n\x0e\x46olderResponse\x12\x1c\n\x07\x66olders\x18\x01 \x03(\x0b\x32\x0b.dms.Folder\" \n\x0b\x46ileRequest\x12\x11\n\tfolder_id\x18\x01 \x01(\x05\"(\n\x0c\x46ileResponse\x12\x18\n\x05\x66iles\x18\x01 \x03(\x0b\x32\t.dms.File\"?\n\x11\x43reateFileRequest\x12\x11\n\tfolder_id\x18\x01 \x01(\x05\x12\x17\n\x04\x66ile\x18\x02 \x01(\x0b\x32\t.dms.File\"%\n\x12\x43reateFileResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"C\n\x13\x43reateFolderRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x1b\n\x06\x66older\x18\x02 \x01(\x0b\x32\x0b.dms.Folder\"\'\n\x14\x43reateFolderResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"5\n\x0fMoveFileRequest\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x05\x12\x11\n\tfolder_id\x18\x02 \x01(\x05\"#\n\x10MoveFileResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\")\n\x06\x46older\x12\x11\n\tfolder_id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\"%\n\x04\x46ile\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\"7\n\x11\x43reateUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"%\n\x12\x43reateUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\x1e\n\rLoginResponse\x12\r\n\x05token\x18\x01 \x01(\t\"\x0e\n\x0cHelloRequest\" \n\rHelloResponse\x12\x0f\n\x07message\x18\x01 \x01(\t2\x83\x04\n\nDmsService\x12.\n\x07GetUser\x12\x10.dms.UserRequest\x1a\x11.dms.UserResponse\x12\x35\n\nGetFolders\x12\x12.dms.FolderRequest\x1a\x13.dms.FolderResponse\x12/\n\x08GetFiles\x12\x10.dms.FileRequest\x1a\x11.dms.FileResponse\x12=\n\nCreateFile\x12\x16.dms.CreateFileRequest\x1a\x17.dms.CreateFileResponse\x12\x43\n\x0c\x43reateFolder\x12\x18.dms.CreateFolderRequest\x1a\x19.dms.CreateFolderResponse\x12\x37\n\x08MoveFile\x12\x14.dms.MoveFileRequest\x1a\x15.dms.MoveFileResponse\x12\x31\n\x08SayHello\x12\x11.dms.HelloRequest\x1a\x12.dms.HelloResponse\x12=\n\nCreateUser\x12\x16.dms.CreateUserRequest\x1a\x17.dms.CreateUserResponse\x12.\n\x05Login\x12\x11.dms.LoginRequest\x1a\x12.dms.LoginResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tdms.proto\x12\x03\x64ms\"\x1e\n\x0bUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"1\n\x0cUserResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x10\n\x08username\x18\x02 \x01(\t\" \n\rFolderRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\".\n\x0e\x46olderResponse\x12\x1c\n\x07\x66olders\x18\x01 \x03(\x0b\x32\x0b.dms.Folder\" \n\x0b\x46ileRequest\x12\x11\n\tfolder_id\x18\x01 \x01(\x05\"\x1d\n\x0c\x46ileResponse\x12\r\n\x05\x66iles\x18\x01 \x01(\t\"I\n\x11\x43reateFileRequest\x12\x11\n\tfolder_id\x18\x01 \x01(\x05\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t\"6\n\x12\x43reateFileResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"4\n\x13\x43reateFolderRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\"8\n\x14\x43reateFolderResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"5\n\x0fMoveFileRequest\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x05\x12\x11\n\tfolder_id\x18\x02 \x01(\x05\"#\n\x10MoveFileResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\")\n\x06\x46older\x12\x11\n\tfolder_id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\"%\n\x04\x46ile\x12\x0f\n\x07\x66ile_id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\"7\n\x11\x43reateUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"%\n\x12\x43reateUserResponse\x12\x0f\n\x07message\x18\x01 \x01(\t\"2\n\x0cLoginRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"@\n\rLoginResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\r\n\x05token\x18\x02 \x01(\t\x12\x0f\n\x07message\x18\x03 \x01(\t\"\x0e\n\x0cHelloRequest\" \n\rHelloResponse\x12\x0f\n\x07message\x18\x01 \x01(\t2\x83\x04\n\nDmsService\x12.\n\x07GetUser\x12\x10.dms.UserRequest\x1a\x11.dms.UserResponse\x12\x35\n\nGetFolders\x12\x12.dms.FolderRequest\x1a\x13.dms.FolderResponse\x12/\n\x08GetFiles\x12\x10.dms.FileRequest\x1a\x11.dms.FileResponse\x12=\n\nCreateFile\x12\x16.dms.CreateFileRequest\x1a\x17.dms.CreateFileResponse\x12\x43\n\x0c\x43reateFolder\x12\x18.dms.CreateFolderRequest\x1a\x19.dms.CreateFolderResponse\x12\x37\n\x08MoveFile\x12\x14.dms.MoveFileRequest\x1a\x15.dms.MoveFileResponse\x12\x31\n\x08SayHello\x12\x11.dms.HelloRequest\x1a\x12.dms.HelloResponse\x12=\n\nCreateUser\x12\x16.dms.CreateUserRequest\x1a\x17.dms.CreateUserResponse\x12.\n\x05Login\x12\x11.dms.LoginRequest\x1a\x12.dms.LoginResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -31,35 +31,35 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_FILEREQUEST']._serialized_start=183
   _globals['_FILEREQUEST']._serialized_end=215
   _globals['_FILERESPONSE']._serialized_start=217
-  _globals['_FILERESPONSE']._serialized_end=257
-  _globals['_CREATEFILEREQUEST']._serialized_start=259
-  _globals['_CREATEFILEREQUEST']._serialized_end=322
-  _globals['_CREATEFILERESPONSE']._serialized_start=324
-  _globals['_CREATEFILERESPONSE']._serialized_end=361
-  _globals['_CREATEFOLDERREQUEST']._serialized_start=363
-  _globals['_CREATEFOLDERREQUEST']._serialized_end=430
-  _globals['_CREATEFOLDERRESPONSE']._serialized_start=432
-  _globals['_CREATEFOLDERRESPONSE']._serialized_end=471
-  _globals['_MOVEFILEREQUEST']._serialized_start=473
-  _globals['_MOVEFILEREQUEST']._serialized_end=526
-  _globals['_MOVEFILERESPONSE']._serialized_start=528
-  _globals['_MOVEFILERESPONSE']._serialized_end=563
-  _globals['_FOLDER']._serialized_start=565
-  _globals['_FOLDER']._serialized_end=606
-  _globals['_FILE']._serialized_start=608
-  _globals['_FILE']._serialized_end=645
-  _globals['_CREATEUSERREQUEST']._serialized_start=647
-  _globals['_CREATEUSERREQUEST']._serialized_end=702
-  _globals['_CREATEUSERRESPONSE']._serialized_start=704
-  _globals['_CREATEUSERRESPONSE']._serialized_end=741
-  _globals['_LOGINREQUEST']._serialized_start=743
-  _globals['_LOGINREQUEST']._serialized_end=793
-  _globals['_LOGINRESPONSE']._serialized_start=795
-  _globals['_LOGINRESPONSE']._serialized_end=825
-  _globals['_HELLOREQUEST']._serialized_start=827
-  _globals['_HELLOREQUEST']._serialized_end=841
-  _globals['_HELLORESPONSE']._serialized_start=843
-  _globals['_HELLORESPONSE']._serialized_end=875
-  _globals['_DMSSERVICE']._serialized_start=878
-  _globals['_DMSSERVICE']._serialized_end=1393
+  _globals['_FILERESPONSE']._serialized_end=246
+  _globals['_CREATEFILEREQUEST']._serialized_start=248
+  _globals['_CREATEFILEREQUEST']._serialized_end=321
+  _globals['_CREATEFILERESPONSE']._serialized_start=323
+  _globals['_CREATEFILERESPONSE']._serialized_end=377
+  _globals['_CREATEFOLDERREQUEST']._serialized_start=379
+  _globals['_CREATEFOLDERREQUEST']._serialized_end=431
+  _globals['_CREATEFOLDERRESPONSE']._serialized_start=433
+  _globals['_CREATEFOLDERRESPONSE']._serialized_end=489
+  _globals['_MOVEFILEREQUEST']._serialized_start=491
+  _globals['_MOVEFILEREQUEST']._serialized_end=544
+  _globals['_MOVEFILERESPONSE']._serialized_start=546
+  _globals['_MOVEFILERESPONSE']._serialized_end=581
+  _globals['_FOLDER']._serialized_start=583
+  _globals['_FOLDER']._serialized_end=624
+  _globals['_FILE']._serialized_start=626
+  _globals['_FILE']._serialized_end=663
+  _globals['_CREATEUSERREQUEST']._serialized_start=665
+  _globals['_CREATEUSERREQUEST']._serialized_end=720
+  _globals['_CREATEUSERRESPONSE']._serialized_start=722
+  _globals['_CREATEUSERRESPONSE']._serialized_end=759
+  _globals['_LOGINREQUEST']._serialized_start=761
+  _globals['_LOGINREQUEST']._serialized_end=811
+  _globals['_LOGINRESPONSE']._serialized_start=813
+  _globals['_LOGINRESPONSE']._serialized_end=877
+  _globals['_HELLOREQUEST']._serialized_start=879
+  _globals['_HELLOREQUEST']._serialized_end=893
+  _globals['_HELLORESPONSE']._serialized_start=895
+  _globals['_HELLORESPONSE']._serialized_end=927
+  _globals['_DMSSERVICE']._serialized_start=930
+  _globals['_DMSSERVICE']._serialized_end=1445
 # @@protoc_insertion_point(module_scope)

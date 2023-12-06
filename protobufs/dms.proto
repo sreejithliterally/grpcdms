@@ -37,25 +37,28 @@ message FileRequest {
 }
 
 message FileResponse {
-    repeated File files = 1;
+    string files = 1;
 }
 
 message CreateFileRequest {
     int32 folder_id = 1;
-    File file = 2;
+    string filename = 2;
+    string content = 3;
 }
 
 message CreateFileResponse {
-    string message = 1;
+    bool success = 1;
+    string message = 2;
 }
 
 message CreateFolderRequest {
     int32 user_id = 1;
-    Folder folder = 2;
+    string name = 2;
 }
 
 message CreateFolderResponse {
-    string message = 1;
+    bool success = 1;
+    string message = 2;
 }
 
 message MoveFileRequest {
@@ -93,7 +96,9 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    string token = 1;
+    bool success = 1;
+    string token = 2;
+    string message = 3;
 }
 
 message HelloRequest {}

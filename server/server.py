@@ -7,18 +7,23 @@ from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from contextlib import contextmanager
+from passlib.hash import bcrypt
+import jwt
+from datetime import datetime, timedelta
+from sqlalchemy.exc import SQLAlchemyError
+from functools import wraps
 
-
+from utils import verify
 
 
 Base = declarative_base()
-
 
 class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)
+    password = Column(String, nullable=False)
     folders = relationship('Folder', back_populates='user')
 
 class Folder(Base):
@@ -42,16 +47,28 @@ class File(Base):
     folder = relationship('Folder', back_populates='files')
 
 
+
 @contextmanager
 def get_db():
     # Replace this with your actual database configuration
     engine = create_engine("postgresql://postgres:something@localhost:5432/grpcdms")
+    Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
     try:
         yield session
     finally:
         session.close()
+
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+TOKEN_EXPIRATION = timedelta(days=1)
+
+
+
+
+
+
 
 
 
@@ -61,19 +78,57 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
         self.Session = sessionmaker(autocommit=False, autoflush=False)
 
     def SayHello(self, request, context):
-        return dms_pb2.HelloResponse(message="Hello from the DMS server!")
+        test = dms_pb2.HelloResponse(message="Hello from the DMS server!")
+        print(test)
+        return test
     
-    def CreateUser(self, request, context):
+    
+    
+      
+    def Login(self, request, context):
+        try:
+            with get_db() as session:
+                # Query the user from the database
+                user = session.query(User).filter_by(username=request.username).first()
+
+                # Check if the user exists and the password matches
+                if user and verify(request.password, user.password):
+          
+                    token = self.create_jwt_token(user.id)
+                    return dms_pb2.LoginResponse(success=True, token=token, message="Authentication successful")
+                else:
+                    return dms_pb2.LoginResponse(success=False, message="Authentication failed")
+        except SQLAlchemyError as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Database error: {str(e)}")
+            return dms_pb2.AuthResponse(success=False, message="Internal server error")
+
+    def create_jwt_token(self, user_id):
+        # Create a JWT token with user ID and expiration
+        payload = {
+            "user_id": user_id,
+            "exp": datetime.utcnow()+TOKEN_EXPIRATION
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+        return token
+
+
+    
+    
+    def CreateUser(self, request, context): 
         with get_db() as session:
             # Check if the username already exists
+        
             existing_user = session.query(User).filter_by(username=request.username).first()
             if existing_user:
                 context.set_code(grpc.StatusCode.ALREADY_EXISTS)
                 context.set_details("User with this username already exists")
                 return dms_pb2.CreateUserResponse(message="Username already exists")
 
+            hashed_password = bcrypt.hash(request.password)
+
             # Create a new user
-            new_user = User(username=request.username)
+            new_user = User(username=request.username, password=hashed_password)
             session.add(new_user)
             session.commit()
             return dms_pb2.CreateUserResponse(message="User created successfully")
@@ -81,6 +136,7 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
 
     def GetUser(self, request, context):
         with get_db() as session:
+           
             user = session.query(User).filter_by(id=request.user_id).first()
             if user:
                 return dms_pb2.UserResponse(user_id=user.id, username=user.username)
@@ -88,27 +144,30 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
                 context.set_code(grpc.StatusCode.NOT_FOUND)
                 context.set_details("User not found")
                 return dms_pb2.UserResponse()
-
+            
     def GetFolders(self, request, context):
         with get_db() as session:
+          
             folders = session.query(Folder).filter_by(user_id=request.user_id).all()
             folder_protos = [dms_pb2.Folder(folder_id=folder.id, name=folder.name) for folder in folders]
             return dms_pb2.FolderResponse(folders=folder_protos)
-
+        
     def GetFiles(self, request, context):
         with get_db() as session:
+           
             files = session.query(File).filter_by(folder_id=request.folder_id).all()
             file_protos = [dms_pb2.File(file_id=file.id, name=file.name) for file in files]
             return dms_pb2.FileResponse(files=file_protos)
-
+ 
     def CreateFile(self, request, context):
         with get_db() as session:
             folder = session.query(Folder).filter_by(id=request.folder_id).first()
+           
             if folder:
-                new_file = File(name=request.file.name, content=request.file.content, folder_id=request.folder_id)
+                new_file = File(name=request.filename, content=request.content, folder_id=request.folder_id)
                 session.add(new_file)
                 session.commit()
-                return dms_pb2.CreateFileResponse(message="File created successfully")
+                return dms_pb2.CreateFileResponse(message="File created successfully",success=True)
             else:
                 context.set_code(grpc.StatusCode.NOT_FOUND)
                 context.set_details("Folder not found")
@@ -116,13 +175,16 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
 
     def CreateFolder(self, request, context):
         with get_db() as session:
-            new_folder = Folder(name=request.folder.name, user_id=request.user_id)
+            
+            new_folder = Folder(name=request.name, user_id=request.user_id)
             session.add(new_folder)
             session.commit()
-            return dms_pb2.CreateFolderResponse(message="Folder created successfully")
+            return dms_pb2.CreateFolderResponse(message="Folder created successfully", success=True)
+        
 
     def MoveFile(self, request, context):
         with get_db() as session:
+           
             file = session.query(File).filter_by(id=request.file_id).first()
             folder = session.query(Folder).filter_by(id=request.folder_id).first()
             if file and folder:
