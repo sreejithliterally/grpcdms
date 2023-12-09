@@ -1,0 +1,13 @@
+.log {
+  background-color: white;
+  color: #6437d4;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.log:hover {
+  background-color: #f0f0f0;
+}

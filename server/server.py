@@ -12,45 +12,16 @@ import jwt
 from datetime import datetime, timedelta
 from sqlalchemy.exc import SQLAlchemyError
 from functools import wraps
+from grpc import ServicerContext
 
+from models import Base,User,File,Folder
 from utils import verify
 
-
-Base = declarative_base()
-
-class User(Base):
-    __tablename__ = 'users'
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False)
-    password = Column(String, nullable=False)
-    folders = relationship('Folder', back_populates='user')
-
-class Folder(Base):
-    __tablename__ = 'folders'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    
-    user = relationship('User', back_populates='folders')
-    files = relationship('File', back_populates='folder')
-
-class File(Base):
-    __tablename__ = 'files'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    content = Column(String, nullable=True)  # You might want to adjust the data type
-    folder_id = Column(Integer, ForeignKey('folders.id'), nullable=False)
-
-    folder = relationship('Folder', back_populates='files')
 
 
 
 @contextmanager
 def get_db():
-    # Replace this with your actual database configuration
     engine = create_engine("postgresql://postgres:something@localhost:5432/grpcdms")
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
@@ -66,8 +37,46 @@ TOKEN_EXPIRATION = timedelta(days=1)
 
 
 
+class ErrorResponse:
+    def __init__(self, success=False, message="Authentication failed"):
+        self.success = success
+        self.message = message
 
+def authenticate_user(func):
+    @wraps(func)
+    def wrapper(self, request, context):
+        try:
+            # Debugging
+            print("Received gRPC Request: ", context.invocation_metadata())
 
+            # Extracting JWT token from the request metadata
+            metadata = dict(context.invocation_metadata())
+            jwt_token = metadata.get('authorization', '')
+
+            # Debugging
+            print(f"Received Token: {jwt_token}")
+
+            # Verify and decode the JWT 
+            decoded_token = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+
+            # Debug
+            print(f"Decoded Token: {decoded_token}")
+
+          
+            user_id = decoded_token.get('user_id')
+
+      
+            return func(self, request, context, user_id)
+        except Exception as e:
+            # Debug
+            print(f"Authentication failed: {str(e)}")
+
+        
+            context.set_code(grpc.StatusCode.UNAUTHENTICATED)
+            context.set_details(f"Authentication failed: {str(e)}")
+            return ErrorResponse(success=False, message="Authentication failed")
+
+    return wrapper
 
 
 
@@ -88,10 +97,10 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
     def Login(self, request, context):
         try:
             with get_db() as session:
-                # Query the user from the database
+               
                 user = session.query(User).filter_by(username=request.username).first()
 
-                # Check if the user exists and the password matches
+                
                 if user and verify(request.password, user.password):
           
                     token = self.create_jwt_token(user.id)
@@ -104,7 +113,7 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
             return dms_pb2.AuthResponse(success=False, message="Internal server error")
 
     def create_jwt_token(self, user_id):
-        # Create a JWT token with user ID and expiration
+       
         payload = {
             "user_id": user_id,
             "exp": datetime.utcnow()+TOKEN_EXPIRATION
@@ -117,7 +126,7 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
     
     def CreateUser(self, request, context): 
         with get_db() as session:
-            # Check if the username already exists
+            
         
             existing_user = session.query(User).filter_by(username=request.username).first()
             if existing_user:
@@ -127,7 +136,7 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
 
             hashed_password = bcrypt.hash(request.password)
 
-            # Create a new user
+           
             new_user = User(username=request.username, password=hashed_password)
             session.add(new_user)
             session.commit()
@@ -137,27 +146,34 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
     def GetUser(self, request, context):
         with get_db() as session:
            
-            user = session.query(User).filter_by(id=request.user_id).first()
+            user = session.query(User).filter_by(id=user_id).first()
             if user:
                 return dms_pb2.UserResponse(user_id=user.id, username=user.username)
             else:
                 context.set_code(grpc.StatusCode.NOT_FOUND)
                 context.set_details("User not found")
                 return dms_pb2.UserResponse()
-            
-    def GetFolders(self, request, context):
+    
+    @authenticate_user       
+    def GetFolders(self, request, context,user_id):
         with get_db() as session:
           
-            folders = session.query(Folder).filter_by(user_id=request.user_id).all()
+            folders = session.query(Folder).filter_by(user_id=user_id).all()
             folder_protos = [dms_pb2.Folder(folder_id=folder.id, name=folder.name) for folder in folders]
             return dms_pb2.FolderResponse(folders=folder_protos)
-        
-    def GetFiles(self, request, context):
+    
+    @authenticate_user
+    def GetFiles(self, request, context, user_id):
         with get_db() as session:
-           
             files = session.query(File).filter_by(folder_id=request.folder_id).all()
+
+            # Debugging
+            for file in files:
+                print(f"File ID: {file.id}, Name: {file.name}")
+
             file_protos = [dms_pb2.File(file_id=file.id, name=file.name) for file in files]
             return dms_pb2.FileResponse(files=file_protos)
+
  
     def CreateFile(self, request, context):
         with get_db() as session:
@@ -196,7 +212,7 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
                 context.set_details("File or Folder not found")
                 return dms_pb2.MoveFileResponse()
 
-# Create a gRPC server and add the servicer
+
 def serve():
     print("Starting gRPC server...")
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
