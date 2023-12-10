@@ -161,18 +161,6 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
             folders = session.query(Folder).filter_by(user_id=user_id).all()
             folder_protos = [dms_pb2.Folder(folder_id=folder.id, name=folder.name) for folder in folders]
             return dms_pb2.FolderResponse(folders=folder_protos)
-    
-    @authenticate_user
-    def GetFiles(self, request, context, user_id):
-        with get_db() as session:
-            files = session.query(File).filter_by(folder_id=request.folder_id).all()
-
-            # Debugging
-            for file in files:
-                print(f"File ID: {file.id}, Name: {file.name}")
-
-            file_protos = [dms_pb2.File(file_id=file.id, name=file.name) for file in files]
-            return dms_pb2.FileResponse(files=file_protos)
 
  
     def CreateFile(self, request, context):
@@ -188,11 +176,24 @@ class DmsServiceServicer(dms_pb2_grpc.DmsServiceServicer):
                 context.set_code(grpc.StatusCode.NOT_FOUND)
                 context.set_details("Folder not found")
                 return dms_pb2.CreateFileResponse()
+            
+    @authenticate_user
+    def GetFiles(self, request, context, user_id):
+        with get_db() as session:
+            files = session.query(File).filter_by(folder_id=request.folder_id).all()
 
-    def CreateFolder(self, request, context):
+            # Debugging
+            for file in files:
+                print(f"File ID: {file.id}, Name: {file.name}")
+
+            file_protos = [dms_pb2.File(file_id=file.id, name=file.name) for file in files]
+            return dms_pb2.FileResponse(files=file_protos)
+            
+    @authenticate_user
+    def CreateFolder(self, request, context,user_id):
         with get_db() as session:
             
-            new_folder = Folder(name=request.name, user_id=request.user_id)
+            new_folder = Folder(name=request.name, user_id=user_id)
             session.add(new_folder)
             session.commit()
             return dms_pb2.CreateFolderResponse(message="Folder created successfully", success=True)

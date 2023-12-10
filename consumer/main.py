@@ -20,7 +20,7 @@ class CreateUserResponseModel(BaseModel):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You might want to restrict this in production
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,17 +54,16 @@ def authenticate_user(username: str = Form(...), password: str = Form(...), stub
 
 @app.post("/create_folder")
 async def create_folder(
-    user_id: int = Form(...),
     folder_name: str = Form(...),
-    # authorization: str = Header(...),
+    token: str = Depends(get_jwt_token),
     stub: DmsServiceStub = Depends(get_grpc_stub),
 ):
     try:
-       
-        request = CreateFolderRequest(name=folder_name, user_id=user_id)
+        metadata = [('authorization', token)]
+        request = CreateFolderRequest(name=folder_name)
 
        
-        response = stub.CreateFolder(request)
+        response = stub.CreateFolder(request,metadata=metadata)
         print(response)
       
         if response.success:
@@ -137,16 +136,15 @@ async def get_user(user_id: int, stub: DmsServiceStub = Depends(get_grpc_stub)):
 @app.get("/get_folders")
 async def get_folders(token: str = Depends(get_jwt_token), stub: DmsServiceStub = Depends(get_grpc_stub)):
     try:
-        # Debugging: Print the token before making the gRPC request
+       
         print("Token before gRPC request: ", token)
 
-        # Pass the token in the headers to gRPC
+        
         metadata = [('authorization', token)]
 
         # Debugging: Print the headers before making the gRPC request
         print("Headers before gRPC request: ", metadata)
 
-        # Make the gRPC request
         response = stub.GetFolders(FolderRequest(), metadata=metadata)
         folders = [{"folder_id": folder.folder_id, "name": folder.name} for folder in response.folders]
         return JSONResponse(content={"folders": folders})
