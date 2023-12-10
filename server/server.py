@@ -22,7 +22,7 @@ from utils import verify
 
 @contextmanager
 def get_db():
-    engine = create_engine("postgresql://postgres:something@localhost:5432/grpcdms")
+    engine = create_engine("postgresql://postgres:something@localhost:5433/grpcdms")
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()

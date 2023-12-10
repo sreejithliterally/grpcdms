@@ -12,7 +12,7 @@ const Register = () => {
   
     try {
       const data = {
-        username: email,  // Rename email to username if that's the expected field name
+        username: email,  
         password: password,
       };
   
